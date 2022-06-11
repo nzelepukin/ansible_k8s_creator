@@ -1,0 +1,5 @@
+[k8s_master]
+master-node
+[k8s_worker]
+worker-node
+worker-node

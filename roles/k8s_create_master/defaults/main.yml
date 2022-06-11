@@ -1,0 +1,4 @@
+---
+# defaults file for k8s_create_master
+kube_version: "1.21.7"
+kube_endpoint: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"

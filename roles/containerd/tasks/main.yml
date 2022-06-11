@@ -1,0 +1,33 @@
+---
+- name: Working with the swap
+  ansible.builtin.include_tasks: "swap.yml"
+
+- name: include OS family/distribution specific playbook
+  ansible.builtin.include_tasks: "{{ playbook_item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_os_family | lower }}-{{ ansible_distribution | lower }}_{{ ansible_distribution_major_version }}.yml"
+        - "{{ ansible_os_family | lower }}-{{ ansible_distribution | lower }}_{{ ansible_distribution_release | lower }}.yml"
+        - "{{ ansible_os_family | lower }}-{{ ansible_distribution | lower }}.yml"
+        - "{{ ansible_os_family | lower }}.yml"
+      skip: true
+  loop_control:
+    loop_var: playbook_item
+
+- name: Create a directory if it does not exist
+  become: yes
+  ansible.builtin.file:
+    path: /etc/containerd
+    state: directory
+    mode: "0755"
+
+- name: Copy config-file containerd
+  become: yes
+  ansible.builtin.copy:
+    src: config.toml
+    dest: /etc/containerd/config.toml
+    mode: "0644"
+  notify: restart containerd
+
+- name: Add sysctl and modules
+  ansible.builtin.include_tasks: sysctl.yml

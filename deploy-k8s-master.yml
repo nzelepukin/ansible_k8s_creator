@@ -1,0 +1,5 @@
+---
+- hosts: k8s_master
+  tasks:
+    - include_role:
+        name: k8s_create_master

@@ -1,0 +1,14 @@
+kind: ClusterConfiguration
+apiVersion: kubeadm.k8s.io/v1beta2
+kubernetesVersion: v{{ kube_version }}
+controlPlaneEndpoint: {{ kube_endpoint }}:6443
+---
+kind: KubeletConfiguration
+apiVersion: kubelet.config.k8s.io/v1beta1
+cgroupDriver: systemd
+---
+kind: KubeProxyConfiguration
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+mode: ipvs
+ipvs:
+    strictARP: true

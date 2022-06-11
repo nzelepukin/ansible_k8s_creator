@@ -1,0 +1,10 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  vars:
+    kube_version: "1.21.2"
+  tasks:
+    - name: "Include k8s_create_master"
+      include_role:
+        name: "k8s_create_master"

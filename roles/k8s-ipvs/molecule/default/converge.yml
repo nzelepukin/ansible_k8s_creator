@@ -1,0 +1,8 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  tasks:
+    - name: "Include k8s-ipvs"
+      include_role:
+        name: "k8s-ipvs"

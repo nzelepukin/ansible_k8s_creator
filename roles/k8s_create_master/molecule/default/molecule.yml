@@ -1,0 +1,14 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: vagrant
+platforms:
+  - name: ubuntu
+    box: bento/ubuntu-18.04
+    memory: 2048
+    cpus: 3
+provisioner:
+  name: ansible
+verifier:
+  name: ansible

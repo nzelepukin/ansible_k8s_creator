@@ -1,0 +1,6 @@
+---
+- name: Ensure ipvsadm installed.
+  ansible.builtin.apt:
+    name:
+      - ipvsadm
+    state: present
