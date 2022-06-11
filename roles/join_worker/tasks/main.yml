@@ -16,6 +16,12 @@
     tags:
       - join_worker
 
+  - name: "Reboot host"
+    when: "ansible_hostname not in cluster_nodes.stdout"
+    ansible.builtin.reboot:
+      reboot_timeout: 600
+    tags:
+      - join_worker
 
   - name: "Joining {{ ansible_hostname }} in cluster"
     ansible.builtin.include_tasks: join_worker.yml

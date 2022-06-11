@@ -1,12 +1,12 @@
 ---
 - hosts: k8s_worker
-
+  become: true
   tasks:
     - include_role:
         name: containerd
     - include_role:
         name: kube
     - include_role:
-        name: systemd-resolved
+        name: k8s-ipvs
     - include_role:
         name: join_worker
