@@ -11,6 +11,5 @@
   - name: "Init cluster"
     ansible.builtin.command: >
       /usr/bin/kubeadm init \
-      --cri-socket /run/containerd/containerd.sock \
       --upload-certs \
       --config /etc/kubeadm-config.yaml
