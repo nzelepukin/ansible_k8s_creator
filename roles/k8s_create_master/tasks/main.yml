@@ -1,15 +1,17 @@
 ---
 # tasks file for k8s_create_master
-  - name: "Reboot host"
-    ansible.builtin.reboot:
-      reboot_timeout: 600
-  - name: "Copy kubeadm-config file"
-    ansible.builtin.template:
-      src: "templates/kubeadm-config.yaml.j2"
-      dest: "/etc/kubeadm-config.yaml"
-      mode: '0644'
-  - name: "Init cluster"
-    ansible.builtin.command: >
-      /usr/bin/kubeadm init \
-      --upload-certs \
-      --config /etc/kubeadm-config.yaml
+- name: "Reboot host"
+  ansible.builtin.reboot:
+    reboot_timeout: 600
+
+- name: "Copy kubeadm-config file"
+  ansible.builtin.template:
+    src: "templates/kubeadm-config.yaml.j2"
+    dest: "/etc/kubeadm-config.yaml"
+    mode: "0644"
+
+- name: "Init cluster"
+  ansible.builtin.command: >
+    /usr/bin/kubeadm init \
+    --upload-certs \
+    --config /etc/kubeadm-config.yaml

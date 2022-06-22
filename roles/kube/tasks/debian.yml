@@ -1,15 +1,15 @@
 ---
 - name: Add key for google repository
-  become: yes
+  become: true
   ansible.builtin.apt_key:
     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     state: present
 #    validate_certs: no
 
 - name: Add google repository
-  become: yes
+  become: true
   ansible.builtin.apt_repository:
-    repo: "deb [arch=amd64] https://apt.kubernetes.io/ kubernetes-xenial main"
+    repo: "{{ kube_apt_repository }}"
     filename: kubernetes
     update_cache: yes
     state: present
@@ -17,7 +17,7 @@
   when: ansible_architecture == 'x86_64'
 
 - name: Install kubelet + kubeadm + kubectl
-  become: yes
+  become: true
   ansible.builtin.apt:
     name:
       - "kubelet={{ kube_version }}-00"
@@ -27,7 +27,7 @@
     update_cache: yes
 
 - name: Hold packages
-  become: yes
+  become: true
   ansible.builtin.dpkg_selections:
     name: "{{ item }}"
     selection: hold

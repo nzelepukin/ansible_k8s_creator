@@ -1,0 +1,11 @@
+---
+- name: Added module nf_conntrack
+  set_fact:
+    k8s_ipvs_modules: "{{ k8s_ipvs_modules + ['nf_conntrack_ipv4'] }}"
+
+- name: Ensure ipvsadm installed.
+  become: true
+  ansible.builtin.apt:
+    name:
+      - ipvsadm
+    state: present

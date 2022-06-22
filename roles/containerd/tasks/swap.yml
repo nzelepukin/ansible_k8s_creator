@@ -1,12 +1,12 @@
 ---
 - name: Disable SWAP since kubernetes can't work with swap enabled (1/2)
-  become: yes
+  become: true
   check_mode: false
   ansible.builtin.shell: |
     swapoff -a
 
 - name: Disable SWAP in fstab since kubernetes can't work with swap enabled (2/2)
-  become: yes
+  become: true
   ansible.builtin.replace:
     path: /etc/fstab
     regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
