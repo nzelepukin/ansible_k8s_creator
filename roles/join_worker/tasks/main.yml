@@ -1,32 +1,30 @@
 ---
-  - name: "Check config in MASTER node"
-    ansible.builtin.file:
-      path: "/etc/kubernetes/admin.conf" 
-    become: true
-    delegate_to: "{{ groups.k8s_master[0] }}"
-    tags:
-      - join_worker
+- name: "Check config in MASTER node"
+  ansible.builtin.file:
+    path: "/etc/kubernetes/admin.conf"
+  become: true
+  delegate_to: "{{ groups.k8s_master[0] }}"
+  tags:
+    - join_worker
 
-  - name: "Check {{ ansible_hostname }} in cluster"
-    ansible.builtin.shell: kubectl --kubeconfig=/etc/kubernetes/admin.conf get nodes
-    register: cluster_nodes
-    become: true
-    check_mode: false
-    delegate_to: "{{  groups.k8s_master[0] }}"
-    tags:
-      - join_worker
+- name: "Check {{ ansible_hostname }} in cluster"
+  ansible.builtin.shell: kubectl --kubeconfig=/etc/kubernetes/admin.conf get nodes
+  register: cluster_nodes
+  become: true
+  check_mode: false
+  delegate_to: "{{ groups.k8s_master[0] }}"
+  tags:
+    - join_worker
 
-  - name: "Reboot host"
-    when: "ansible_hostname not in cluster_nodes.stdout"
-    ansible.builtin.reboot:
-      reboot_timeout: 600
-    tags:
-      - join_worker
+- name: "Reboot host"
+  when: "ansible_hostname not in cluster_nodes.stdout"
+  ansible.builtin.reboot:
+    reboot_timeout: 600
+  tags:
+    - join_worker
 
-  - name: "Joining {{ ansible_hostname }} in cluster"
-    ansible.builtin.include_tasks: join_worker.yml
-    when: "ansible_hostname not in cluster_nodes.stdout"
-    tags:
-      - join_worker
-    
-
+- name: "Joining {{ ansible_hostname }} in cluster"
+  ansible.builtin.include_tasks: join_worker.yml
+  when: "ansible_hostname not in cluster_nodes.stdout"
+  tags:
+    - join_worker

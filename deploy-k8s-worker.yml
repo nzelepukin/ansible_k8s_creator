@@ -2,11 +2,11 @@
 - hosts: k8s_worker
   become: true
   tasks:
-    - include_role:
+    - ansible.builtin.include_role:
         name: containerd
-    - include_role:
+    - ansible.builtin.include_role:
         name: kube
-    - include_role:
-        name: k8s-ipvs
-    - include_role:
+    - ansible.builtin.include_role:
+        name: k8s_ipvs
+    - ansible.builtin.include_role:
         name: join_worker

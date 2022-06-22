@@ -1,49 +1,48 @@
 ---
-  - name: Get JOIN token from Kubernetes MASTER node.
-    ansible.builtin.shell: >
-      kubeadm token create --print-join-command
-    args:
-      warn: false
-    become: true
-    check_mode: false
-    register: token
-    delegate_to: "{{ groups.k8s_master[0] }}"
-    tags:
-      - join_worker
+- name: Get JOIN token from Kubernetes MASTER node.
+  ansible.builtin.shell: >
+    kubeadm token create --print-join-command
+  args:
+    warn: false
+  become: true
+  check_mode: false
+  register: token
+  delegate_to: "{{ groups.k8s_master[0] }}"
+  tags:
+    - join_worker
 
-  - name: Join WORKER node to Kubernetes.
-    ansible.builtin.shell: >
-      {{ token.stdout }}
-    args:
-      warn: false
-    become: true
-    check_mode: false
-    when: 
-      - token is succeeded
-      - "'--token' in token.stdout"
-      - "'--discovery-token-ca-cert-hash' in token.stdout"
-    tags:
-      - join_worker
+- name: Join WORKER node to Kubernetes.
+  ansible.builtin.shell: >
+    {{ token.stdout }}
+  args:
+    warn: false
+  become: true
+  check_mode: false
+  when:
+    - token is succeeded
+    - "'--token' in token.stdout"
+    - "'--discovery-token-ca-cert-hash' in token.stdout"
+  tags:
+    - join_worker
 
-  - name: Wait until node got Ready status
-    ansible.builtin.shell: kubectl --kubeconfig=/etc/kubernetes/admin.conf get nodes
-    retries: 10
-    register: node_ready
-    become: true
-    check_mode: false
-    until: node_ready.stdout.find(" NotReady ") == -1
-    delegate_to: "{{ groups.k8s_master[0] }}"
-    tags:
-      - join_worker
+- name: Wait until node got Ready status
+  ansible.builtin.shell: kubectl --kubeconfig=/etc/kubernetes/admin.conf get nodes
+  retries: 10
+  register: node_ready
+  become: true
+  check_mode: false
+  until: node_ready.stdout.find(" NotReady ") == -1
+  delegate_to: "{{ groups.k8s_master[0] }}"
+  tags:
+    - join_worker
 
-  - name: Edit kubelet config 
-    block:
-
+- name: Edit kubelet config
+  block:
     - name: Update cgroup driver to systemd
       ansible.builtin.lineinfile:
         dest: /var/lib/kubelet/config.yaml
-        regexp: 'cgroupDriver:'
-        line: 'cgroupDriver: systemd'
+        regexp: "cgroupDriver:"
+        line: "cgroupDriver: systemd"
         state: present
       notify: restart kubelet
 
@@ -75,39 +74,37 @@
             memory: "512Mi"
             ephemeral-storage: "1Gi"
       notify: restart kubelet
-    become: true
-    when: node_ready is succeeded
-    tags:
-      - join_worker
+  become: true
+  when: node_ready is succeeded
+  tags:
+    - join_worker
 
-  - name: Again wait until node got Ready status
-    ansible.builtin.shell: kubectl --kubeconfig=/etc/kubernetes/admin.conf get nodes
-    retries: 10
-    register: node_ready
-    become: true
-    check_mode: false
-    until: node_ready.stdout.find(" NotReady ") == -1
-    delegate_to: "{{ groups.k8s_master[0] }}"
+- name: Again wait until node got Ready status
+  ansible.builtin.shell: kubectl --kubeconfig=/etc/kubernetes/admin.conf get nodes
+  retries: 10
+  register: node_ready
+  become: true
+  check_mode: false
+  until: node_ready.stdout.find(" NotReady ") == -1
+  delegate_to: "{{ groups.k8s_master[0] }}"
 
-  - name: Worker block with labels
-    block:
+- name: Worker block with labels
+  block:
     - name: Get existing labels
-      ansible.builtin.shell: kubectl --kubeconfig=/etc/kubernetes/admin.conf describe node {{ansible_hostname}} 
+      ansible.builtin.shell: kubectl --kubeconfig=/etc/kubernetes/admin.conf describe node {{ansible_hostname}}
       register: node_labels
       become: true
       check_mode: false
-      delegate_to: "{{ groups.k8s_master[0] }}"
 
     - name: Add label node-role - worker
       ansible.builtin.shell: kubectl --kubeconfig=/etc/kubernetes/admin.conf label node {{ansible_hostname}} node-role.kubernetes.io/worker=worker
       become: true
       check_mode: false
-      delegate_to: "{{ groups.k8s_master[0] }}"
       when: node_labels.stdout.find("node-role.kubernetes.io/worker=worker") == -1
 
     - name: Add label runtime - containerd
       ansible.builtin.shell: kubectl --kubeconfig=/etc/kubernetes/admin.conf label node {{ansible_hostname}} runtime=containerd
       become: true
       check_mode: false
-      delegate_to: "{{ groups.k8s_master[0] }}"
       when: node_labels.stdout.find("runtime=containerd") == -1
+  delegate_to: "{{ groups.k8s_master[0] }}"

@@ -1,7 +1,4 @@
 ---
-- name: Working with the swap
-  ansible.builtin.include_tasks: "swap.yml"
-
 - name: include OS family/distribution specific playbook
   ansible.builtin.include_tasks: "{{ playbook_item }}"
   with_first_found:
@@ -14,20 +11,22 @@
   loop_control:
     loop_var: playbook_item
 
-- name: Create a directory if it does not exist
-  become: true
-  ansible.builtin.file:
-    path: /etc/containerd
-    state: directory
-    mode: "0755"
-
-- name: Copy config-file containerd
+- name: Add modules to the file
   become: true
   ansible.builtin.copy:
-    src: config.toml
-    dest: /etc/containerd/config.toml
+    content: |
+      {%- for module in k8s_ipvs_modules %}
+      {{ module }}
+      {% endfor %}
+    dest: /etc/modules-load.d/ipvs.conf
+    group: "root"
+    owner: "root"
     mode: "0644"
-  notify: restart containerd
+  loop: "{{ k8s_ipvs_modules }}"
 
-- name: Add sysctl and modules
-  ansible.builtin.include_tasks: sysctl.yml
+- name: Load modules
+  become: true
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ k8s_ipvs_modules }}"

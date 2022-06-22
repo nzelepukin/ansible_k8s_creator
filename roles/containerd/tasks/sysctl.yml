@@ -1,6 +1,6 @@
 ---
 - name: Add modules to the file
-  become: yes
+  become: true
   ansible.builtin.copy:
     content: |
       overlay
@@ -9,7 +9,7 @@
   notify: restart containerd
 
 - name: Load modules
-  become: yes
+  become: true
   community.general.modprobe:
     name: "{{ item }}"
     state: present
@@ -19,7 +19,7 @@
   notify: restart containerd
 
 - name: sysctl. net.bridge.bridge-nf-call-iptables
-  become: yes
+  become: true
   ansible.posix.sysctl:
     name: net.bridge.bridge-nf-call-iptables
     value: "1"
@@ -30,7 +30,7 @@
   notify: restart containerd
 
 - name: sysctl. net.ipv4.ip_forward
-  become: yes
+  become: true
   ansible.posix.sysctl:
     name: net.ipv4.ip_forward
     value: "1"
@@ -41,7 +41,7 @@
   notify: restart containerd
 
 - name: sysctl. net.bridge.bridge-nf-call-ip6tables
-  become: yes
+  become: true
   ansible.posix.sysctl:
     name: net.bridge.bridge-nf-call-ip6tables
     value: "1"
