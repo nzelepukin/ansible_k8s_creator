@@ -24,33 +24,6 @@ molecule test
 Подключение роли через ansible-galaxy
 ---
 
-Для того что бы подключить роль к своему плейбуку сделайте следующее:  
-В корень проекта добавьте файл `requirements.yml` с таким содержимым
-
-```yaml
----
-- name: k8s-ipvs
-  src: git@gitlabci.dpd.ru:devops/ansible_roles/k8s-ipvs.git
-  scm: git
-  version: v1
-```
-**Обратите внимание**: версионирование происходит через тег.  
-  
-И выполните команду
-
-```bash
-ansible-galaxy install -r requirements.yml
-ansible-galaxy install -r requirements.yml --force # если надо обновить существующее
-```
-
-Проверить установленные роли и их версии можно через команду
-
-```bash
-ansible-galaxy list
-```
-
-После того как роль скачается, её можно подключать в плейбуке.
-
 Пример использования
 ----------------
 
